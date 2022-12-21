@@ -4,30 +4,35 @@
  */
 package componente_guillermoBenitez;
 
+import static componente_guillermoBenitez.CampoTextoNumerico.label;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.util.Duration;
 
 /**
  *
  * @author usuario
  */
 public class Temporizador extends HBox implements Initializable {
+    @FXML
+    private Label secondsLabel;
+    private Integer seconds = 10;
     
-    @FXML private Label contadorLabel;
-    @FXML private Button startBtn;
-    @FXML private Button stopBtn;
+    //timeline
+    private Timeline timeline;
     
     
     private ObjectProperty<EventHandler<ActionEvent>> OnAction = 
@@ -45,35 +50,43 @@ public class Temporizador extends HBox implements Initializable {
         }
     }
     
+    private void doTime(){
+        //Duration duration = Duration.ofSeconds(10000);
+        Timeline time = new Timeline();
+        time.setCycleCount(Timeline.INDEFINITE);
+        if(time!= null){//if the time is equal to zero it is finished but if it is not equal to something then it is //doing something
+            time.stop();
+        }
+        KeyFrame frame = new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>(){
+                        //every one second of the timeline the keyframe will do something (i.e., perform a job and that job //is defined by the event handler)
+                        @Override
+                        public void handle(ActionEvent event){
+                            seconds--;
+                            secondsLabel.setText("Contador: " + seconds.toString() + " Segundos");
+                            
+                             if(seconds <= 0){
+                                time.stop();
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setHeaderText("Contador establecido en 0!");
+                                alert.show();
+                            }
+                        }
+                    });
+        time.getKeyFrames().add(frame);
+        time.playFromStart();
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        startBtn.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                onActionProperty().get().handle(event);
-            }
-        });
-        
-    }
-    
-    public final ObjectProperty<EventHandler<ActionEvent>> onActionProperty() {
-        return OnAction;
-    }
-    public final void setOnAction(EventHandler<ActionEvent> handler) {
-        OnAction.set(handler);
-    }
-    
-    public String getText() {
-        return textProperty().get();
-    }
-    
-    public void setText(String value) {
-        textProperty().set(value);
+        doTime();
     }
 
-    public StringProperty textProperty() {
-        return contadorLabel.textProperty();
+    public Integer getSeconds() {
+        return seconds;
     }
+
+    public void setSeconds(Integer seconds) {
+        this.seconds = seconds;
+    }    
+
 }
